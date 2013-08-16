@@ -32,7 +32,7 @@ Open terminal and do the following where X is the sdk target id with version >=1
 
 In the RobinTests directory call:
 
-<code>ant runtests -DtesngXml="SmokeTests.xml"</code>
+<code>ant runtests -DtestngXml="SmokeTests.xml"</code>
 where runtests is the ant command to run the selected tests, that are defined in SmokeTests.xml
 
 to run multiple suites parallel add more XMLs to -DtestngXml parameter:
