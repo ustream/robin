@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.jayway.android.robotium.remotecontrol.client">
+    <!-- We add an application tag here just so that we can indicate that
+         this package needs to link against the android.test library,
+         which is needed when building test cases. -->
+    <uses-sdk android:minSdkVersion="10"/>
+    <application android:debuggable="true" android:label="Robotium Test Runner">
+        <uses-library android:name="android.test.runner"/>
+    </application>
+    <!--
+    This declares that this application uses the instrumentation test runner targeting
+    the package of com.android.example.spinner.  To run the tests use the command:
+    "adb shell am instrument -w com.jayway.android.robotium.remotecontrol.client/com.jayway.android.robotium.remotecontrol.client.RobotiumTestRunner"
+    -->
+    <instrumentation android:label="General-Purpose Robotium Test Runner" android:name="com.jayway.android.robotium.remotecontrol.client.RobotiumTestRunner" android:targetPackage="com.calculator"/>
+</manifest>

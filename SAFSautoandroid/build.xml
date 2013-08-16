@@ -1,0 +1,48 @@
+<project name="SAFSautoandroid" default="build" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property name="SafsAutoandroidVer" value="0.2" />
+	<!-- Set the default application specific properties -->
+
+    <property name="robin.dir" value="${basedir}${file.separator}..${file.separator}Robin" />
+    <import file="${robin.dir}${file.separator}build_ivy.xml" />
+
+	<property name="output.dir" location="${basedir}${file.separator}build" />
+	<property name="bin.dir" location="${output.dir}${file.separator}bin" />
+	<property name="jar.dir" location="${output.dir}${file.separator}jar" />
+	<property name="src.dir" location="${basedir}${file.separator}src" />
+	<property name="lib.dir" location="${basedir}${file.separator}lib" />
+
+	<condition property="safautoandroid.lib.exists">
+		<available file="${lib.dir}" type="dir" />
+	</condition>
+
+	<target name="clean" description="Remove all generated content">
+		<delete dir="${output.dir}" />
+	</target>
+
+	<target name="buildDirs">
+		<mkdir dir="${output.dir}" />
+		<mkdir dir="${jar.dir}" />
+		<mkdir dir="${bin.dir}" />
+	</target>
+
+	<target name="publishSafsAutoAndroidLib" depends="init-ivy" if="safautoandroid.lib.exists" description="Publish attached project binaries into repository">
+		<ivy:resolve file="${lib.dir}${file.separator}ivy-lib.xml" log="${ivy.log.policy}" />
+		<ivy:publish status="release" forcedeliver="true" resolver="local" overwrite="true" pubrevision="1.0" pubdate="20121005103902">
+			<artifacts pattern="${lib.dir}${file.separator}[artifact].[ext]" />
+		</ivy:publish>
+	</target>
+
+	<target name="build" depends="publishSafsAutoAndroidLib, clean, buildDirs" description="Compiles the implementor project">
+		<ivy:resolve file="${basedir}${file.separator}ivy.xml" log="${ivy.log.policy}" />
+		<ivy:cachepath pathid="classpath.project" />
+
+		<javac srcdir="${src.dir}" destdir="${bin.dir}" debug="true" includes="**/*.java" includeantruntime="false" debuglevel="lines,vars,source" fork="true">
+			<classpath refid="classpath.project" />
+		</javac>
+		<jar destfile="${jar.dir}${file.separator}safsautoandroid.jar" basedir="${bin.dir}" />
+		<ivy:publish forcedeliver="true" pubrevision="${SafsAutoandroidVer}" overwrite="true" publishivy="false" resolver="local" status="release">
+			<artifacts pattern="${jar.dir}${file.separator}[artifact].[ext]" />
+		</ivy:publish>
+	</target>
+</project>

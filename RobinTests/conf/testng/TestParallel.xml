@@ -1,0 +1,25 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="Android Smoke Tests" verbose="1" parallel="tests" thread-count="5" data-provider-thread-count="12">
+    <test name="Multiply Tests" parallel="methods" thread-count="12">
+        <parameter name="autFile" value=".\\AndroidCalculator.apk"></parameter>
+        <groups>
+            <run>
+                <include name="MultiplySmokeTests" />
+            </run>
+        </groups>
+        <packages>
+            <package name="com.robin.tests" />
+        </packages>
+    </test>
+    <test name="Multiply Tests2" parallel="methods" thread-count="12">
+        <parameter name="autFile" value=".\\AndroidCalculator2.apk"></parameter>
+        <groups>
+            <run>
+                <include name="MultiplySmokeTests2" />
+            </run>
+        </groups>
+        <packages>
+            <package name="com.robin.tests" />
+        </packages>
+    </test>
+</suite>

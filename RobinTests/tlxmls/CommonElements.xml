@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Activity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="./../conf/Translation.xsd">
+    <Translations>
+        <Group name="Sample Group">
+            <Text name="SampleTranslationTextName">
+                <en_US>Sample text</en_US>
+                <ja_JP>サンプルテキスト</ja_JP>
+                <ko_KR>샘플 텍스트</ko_KR>
+                <es_ES/>
+            </Text>
+        </Group>
+    </Translations>
+</Activity>

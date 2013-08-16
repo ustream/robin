@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+    <info organisation="com.robin" module="safsautoandroid" />
+    <publications>
+        <artifact name="safsautoandroid" type="jar" ext="jar" />
+    </publications>
+    <dependencies>
+        <dependency org="com.google.android.tools" name="ddmlib" rev="r13" />
+    </dependencies>
+</ivy-module>

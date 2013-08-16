@@ -1,0 +1,176 @@
+<project name="RobinAndroid" default="runtests" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property name="version" value="2.0" />
+	<!-- Set the default application specific properties -->
+	<property name="robin.dir" value="${basedir}${file.separator}..${file.separator}Robin" />
+	<property file="build.properties" />
+	<property file="Robin.properties" />
+	<property name="conf.dir" location="${basedir}${file.separator}conf" />
+	<property name="testng.dir" location="conf/testng" />
+
+	<property name="jobName" value="" />
+	<property name="testngXml" value="**/*.xml" />
+	<property name="suiteThreadPoolSize" value="1" />
+	<property name="verbose" value="1" />
+	<property name="minDevice" value="2" />
+
+	<property name="output.dir" location="${basedir}${file.separator}build" />
+	<property name="bin.dir" location="${output.dir}${file.separator}bin" />
+	<property name="jar.dir" location="${output.dir}${file.separator}jar" />
+	<property name="report.dir" location="${output.dir}${file.separator}reports" />
+	<property name="log.dir" location="${output.dir}${file.separator}logs" />
+	<property name="image.dir" location="${output.dir}${file.separator}images" />
+	<property name="aut.dir" location="${output.dir}${file.separator}aut" />
+	<property name="config.dir" location="${basedir}${file.separator}config" />
+	<property name="src.dir" location="${basedir}${file.separator}src" />
+	<property name="lib.dir" location="${basedir}${file.separator}lib" />
+	<property name="logcat.dir" location="${report.dir}${file.separator}logcat" />
+
+	<import file="${robin.dir}${file.separator}build.xml" />
+
+	<target name="clean" description="Remove all generated content">
+		<delete dir="${output.dir}" />
+	</target>
+
+	<target name="reportDir">
+		<mkdir dir="${report.dir}" />
+		<mkdir dir="${image.dir}" />
+	</target>
+
+	<target name="logDir">
+		<mkdir dir="${log.dir}" />
+	</target>
+
+	<target name="buildDirs">
+		<mkdir dir="${output.dir}" />
+		<mkdir dir="${jar.dir}" />
+		<mkdir dir="${bin.dir}" />
+		<mkdir dir="${aut.dir}" />
+		<mkdir dir="${logcat.dir}" />
+	</target>
+
+	<target name="build" depends="buildTestsuite" />
+
+	<condition property="project.lib.exists">
+		<available file="${lib.dir}" type="dir" />
+	</condition>
+
+	<target name="publishProjectLib" depends="init-ivy" if="project.lib.exists" description="Publish attached project binaries into repository">
+		<ivy:resolve file="${lib.dir}${file.separator}ivy-lib.xml" log="${ivy.log.policy}" />
+		<ivy:publish status="release" forcedeliver="true" resolver="local" overwrite="true" pubrevision="1.0" pubdate="20121005103902">
+			<artifacts pattern="${lib.dir}${file.separator}[artifact].[ext]" />
+		</ivy:publish>
+	</target>
+
+	<target name="checkAUTdir">
+		<condition property="autSourceExists">
+			<available file="${robin.autSource}${file.separator}gen" type="dir" />
+		</condition>
+	</target>
+
+	<target name="buildAUTReferences" depends="checkAUTdir" if="autSourceExists" description="Compile and include to classpath the R.java from the aut project">
+		<javac srcdir="${robin.autSource}${file.separator}gen:${robin.autSource}${file.separator}src" destdir="${bin.dir}" debug="true" includes="**/*.java" includeantruntime="false" debuglevel="lines,vars,source" fork="true">
+		</javac>
+		<jar destfile="${jar.dir}${file.separator}autreference.jar" basedir="${bin.dir}" />
+	</target>
+
+	<target name="buildTestsuite" depends="Robin.buildRobin, publishProjectLib, clean, reportDir, buildDirs, buildAUTReferences" description="Compiles the implementor project">
+		<ivy:resolve file="${basedir}${file.separator}ivy.xml" log="${ivy.log.policy}" />
+		<ivy:cachepath pathid="classpath.suite" />
+
+		<path id="classpath.project">
+			<path refid="classpath.suite" />
+			<fileset dir="${jar.dir}${file.separator}" includes="autreference.jar" />
+		</path>
+
+		<javac srcdir="${src.dir}" destdir="${bin.dir}" debug="true" includes="**/*.java" includeantruntime="false" debuglevel="lines,vars,source" fork="true">
+			<classpath refid="classpath.project" />
+		</javac>
+		<jar destfile="${jar.dir}${file.separator}${ant.project.name}.jar" basedir="${bin.dir}" />
+		<ivy:publish forcedeliver="true" pubrevision="${version}" overwrite="true" publishivy="false" resolver="local" status="release">
+			<artifacts pattern="${jar.dir}${file.separator}[artifact].[ext]" />
+		</ivy:publish>
+		<ivy:cachepath pathid="classpath.testsuite" />
+	</target>
+
+	<target name="runtestCore" depends="buildTestsuite">
+		<property name="testng.jar.dir" value="${user.home}${file.separator}testng" />
+		<ivy:retrieve module="testng" organisation="org.testng" revision="latest.integration" inline="true" log="${ivy.log.policy}" transitive="true" type="jar"
+            pattern="${testng.jar.dir}${file.separator}[artifact].[ext]" />
+
+		<condition property="finalTestngXml" value="${testngXml}">
+			<not>
+				<isset property="${finalTestngXml}" />
+			</not>
+		</condition>
+		<property name="testngOutput" value="${report.dir}${file.separator}testNG" />
+		<taskdef resource="testngtasks" classpath="${testng.jar.dir}${file.separator}testng.jar" />
+		<path id="classpath.testNg">
+			<path refid="classpath.testsuite" />
+			<fileset dir="${jar.dir}${file.separator}" includes="${ant.project.name}.jar" />
+		</path>
+
+		<testng classpathref="classpath.testNg" outputDir="${report.dir}/testNG" suitethreadpoolsize="${suiteThreadPoolSize}" failureproperty="testngfail" haltOnfailure="false"
+            configfailurepolicy="continue" delegateCommandSystemProperties="true" useDefaultListeners="true" listeners="${reportNGListener},${customListener}" verbose="${verbose}">
+
+			<xmlfileset dir="${testng.dir}" includes="${finalTestngXml}" />
+
+			<sysproperty key="org.uncommons.reportng.title" value="Automated Test Report" />
+			<sysproperty key="org.uncommons.reportng.frames" value="true" />
+			<sysproperty key="org.uncommons.reportng.stylesheet" value="${reportNGcss}" />
+			<sysproperty key="org.uncommons.reportng.escape-output" value="on" />
+
+			<sysproperty key="image.dir" value="${image.dir}" />
+			<sysproperty key="report.dir" value="${report.dir}${file.separator}testNG${file.separator}html" />
+			<sysproperty key="screenshot.dir" value="${report.dir}${file.separator}testNG${file.separator}html${file.separator}images" />
+			<sysproperty key="logcat.dir" value="${logcat.dir}"/>
+			<sysproperty key="basedir" value="${basedir}" />
+			<sysproperty key="mindevice" value="${minDevice}" />
+			<sysproperty key="picture.dir" value="${basedir}${file.separator}conf${file.separator}pictures${file.separator}" />
+			<sysproperty key="java.util.logging.config.file" value="${conf.dir}${file.separator}logging.properties" />
+			<sysproperty key="org.apache.commons.logging.Log" value="org.apache.commons.logging.impl.Jdk14Logger" />
+
+		</testng>
+		<move todir="${log.dir}${file.separator}testNG" overwrite="true">
+			<fileset dir="${report.dir}${file.separator}testNG${file.separator}xml" />
+		</move>
+	</target>
+
+	<target name="runtests" depends="runtestCore">
+		<fail if="${testngfail}" message="At least one of the tests failed." />
+	</target>
+
+	<target name="failedXmlExistsDetector">
+		<property name="project.dir" location="${basedir}${file.separator}.." />
+		<property name="failedXml" value="testng-failed.xml" />
+		<property name="job.dir" location="${basedir}${file.separator}..${file.separator}..${file.separator}.." />
+		<pathconvert property="failedXml.rel">
+			<path location="${report.dir}${file.separator}testNG" />
+			<globmapper from="${project.dir}${file.separator}*" to=".${file.separator}*" />
+		</pathconvert>
+		<property name="ifFailedXmlDir" location="${job.dir}${file.separator}${jobName}${file.separator}workspace${file.separator}${failedXml.rel}" />
+		<echo>"Checking if '${ifFailedXmlDir}${file.separator}${failedXml}' is present."</echo>
+		<condition property="isFailedXmlExists">
+			<available file="${ifFailedXmlDir}${file.separator}${failedXml}" type="file" />
+		</condition>
+	</target>
+
+	<target name="setFailedXmlIfDetected" depends="failedXmlExistsDetector" if="isFailedXmlExists">
+		<property name="failedXmlDir" location="${ifFailedXmlDir}" />
+	</target>
+
+	<target name="setFailedXmlPath" depends="setFailedXmlIfDetected" unless="isFailedXmlExists">
+		<property name="failedXmlDir" location="${project.dir}${file.separator}${failedXml.rel}" />
+	</target>
+
+	<target name="prepareFailedXml" depends="setFailedXmlPath">
+		<echo message="The failed-test xml is '${failedXmlDir}${file.separator}${failedXml}'" />
+		<copy file="${failedXmlDir}${file.separator}${failedXml}" todir="${testng.dir}" />
+		<property name="finalTestngXml" value="${failedXml}" />
+	</target>
+
+	<target name="runfailedtests" depends="prepareFailedXml, runtestCore">
+		<delete file="${testng.dir}${file.separator}${failedXml}" />
+		<fail if="${testngfail}" message="At least one of the tests failed." />
+	</target>
+</project>

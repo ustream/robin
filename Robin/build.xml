@@ -1,0 +1,124 @@
+<project name="Robin" default="buildRobin" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <property name="robin.version" value="2.2" />
+    <!-- If the file was not imported, set the robin dir to the directory containing this build file. (When imported, ${ant.file} is the importer file. The importer should be responsible for defining Robin 
+        dir -->
+    <dirname file="${ant.file}" property="antfile.dir" />
+    <condition property="robin.dir" value="${antfile.dir}">
+        <not>
+            <isset property="${robin.dir}" />
+        </not>
+    </condition>
+
+    <property name="robin.output.dir" location="${robin.dir}${file.separator}build" />
+    <property name="robin.jar.dir" location="${robin.output.dir}${file.separator}jar" />
+    <property name="robin.bin.dir" location="${robin.output.dir}${file.separator}bin" />
+    <property name="robin.config.dir" location="${robin.dir}${file.separator}config" />
+    <property name="robin.src.dir" location="${robin.dir}${file.separator}src" />
+    <property name="robin.lib.dir" location="${robin.dir}${file.separator}lib" />
+    <property name="reportNGcss" location="${robin.dir}${file.separator}reportStyle.css" />
+    <property name="screenshot.dir" value="${report.dir}${file.separator}testNG${file.separator}html${file.separator}images" />
+
+    <property name="reportNGListener" value="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter" />
+    <property name="customListener" value="com.robin.ScreenshotListener" />
+
+    <property name="safsautoandroid.dir" value="${basedir}${file.separator}..${file.separator}SAFSautoandroid" />
+    <property name="safssockets.dir" value="${basedir}${file.separator}..${file.separator}SAFSSockets" />
+    <property name="robotiumrc.dir" value="${basedir}${file.separator}..${file.separator}SoloRemoteControl" />
+
+    <import file="build_ivy.xml" />
+
+    <target name="initConfig">
+        <!-- Setting default properties. ${basedir} will be the implementor porject's basedir. When not imported, it will be the Robin's base dir. -->
+        <propertyfile file="${basedir}${file.separator}Robin.properties">
+            <entry key="config.dir" default="#basedir#${file.separator}conf" type="string" />
+            <entry key="tlxmls.dir" default="#basedir#${file.separator}tlxmls" type="string" />
+            <entry key="robin.device" default=".*" type="string" />
+            <entry key="robin.autFile" default=".${file.separator}..${file.separator}..${file.separator}aut_app${file.separator}aut-debug.apk" type="string" />
+            <entry key="robin.autSource" default=".${file.separator}..${file.separator}..${file.separator}aut_app${file.separator}main" type="string" />
+            <entry key="robin.messengerSource" default=".${file.separator}..${file.separator}SAFSTCPMessenger" type="string" />
+            <entry key="robin.testRunnrerSource" default=".${file.separator}..${file.separator}RobotiumTestRunner" type="string" />
+            <entry key="robin.resignedAutPath" default="build${file.separator}aut" type="string" />
+            <entry key="robin.logfile" default="build${file.separator}log.txt" type="string" />
+            <entry key="robin.debug" default="true" type="string" />
+            <entry key="mindevice" default="1" type="string" />
+        </propertyfile>
+    </target>
+
+    <target name="robinclean" depends="ivyclean" description="Remove all generated content">
+        <delete dir="${robin.output.dir}" />
+    </target>
+
+    <target name="robinbuildDirs">
+        <mkdir dir="${robin.output.dir}" />
+        <mkdir dir="${robin.jar.dir}" />
+        <mkdir dir="${robin.bin.dir}" />
+    </target>
+
+    <target name="publishRobinLib" depends="init-ivy" description="Publish attached robin binaries into repository">
+        <ivy:resolve file="${robin.lib.dir}${file.separator}ivy.xml" log="${ivy.log.policy}" />
+        <ivy:publish status="release" forcedeliver="true" resolver="local" overwrite="true" pubrevision="1.1" pubdate="20130205103902">
+            <artifacts pattern="${robin.lib.dir}${file.separator}[artifact].[ext]" />
+        </ivy:publish>
+    </target>
+
+    <target name="buildSAFSProjects" description="Build and publish attached SAFS projects.">
+        <ant dir="${safsautoandroid.dir}" inheritall="false" useNativeBasedir="true" />
+        <ant dir="${safssockets.dir}" inheritall="false" useNativeBasedir="true" />
+        <ant dir="${robotiumrc.dir}" inheritall="false" useNativeBasedir="true" />
+    </target>
+
+    <target name="buildRobin" depends="publishRobinLib, buildSAFSProjects, robinclean, robinbuildDirs" description="compile Robin lib">
+        <ivy:resolve file="${robin.dir}${file.separator}ivy.xml" log="${ivy.log.policy}" />
+        <ivy:cachepath pathid="classpath" />
+        <javac srcdir="${robin.src.dir}" destdir="${robin.bin.dir}" debug="true" includes="**/*.java" classpathref="classpath" includeantruntime="false" debuglevel="lines,vars,source" fork="false" />
+        <jar destfile="${robin.jar.dir}${file.separator}robin.jar" basedir="${robin.bin.dir}" />
+        <ivy:publish forcedeliver="true" pubrevision="${robin.version}" overwrite="true" publishivy="false" resolver="local" status="release">
+            <artifacts pattern="${robin.jar.dir}${file.separator}[artifact].[ext]" />
+        </ivy:publish>
+        <ivy:cachepath pathid="classpath.robin" />
+    </target>
+
+    <target name="checkstyle" depends="init-ivy">
+        <property name="checkstyle.dir" value="${user.home}${file.separator}checkstyle" />
+        <mkdir dir="${log.dir}${file.separator}checkstyle" />
+
+        <ivy:resolve file="${robin.lib.dir}${file.separator}ivy-checkstyle.xml" log="${ivy.log.policy}" />
+        <ivy:publish status="release" forcedeliver="false" resolver="local" overwrite="true" publishivy="false">
+            <artifacts pattern="${robin.lib.dir}${file.separator}[artifact].[ext]" />
+        </ivy:publish>
+        <ivy:retrieve module="UstreamTACustomCheckstyle" organisation="tv.ustream" revision="5.6.1" inline="true" log="${ivy.log.policy}" transitive="true" type="jar" pattern="${checkstyle.dir}${file.separator}[artifact].[ext]" />
+        <ivy:retrieve module="checkstyle" organisation="com.puppycrawl.tools" revision="5.6" inline="true" log="${ivy.log.policy}" transitive="true" type="jar" pattern="${checkstyle.dir}${file.separator}[artifact].[ext]" />
+
+        <path id="checkstyle.path">
+            <fileset dir="${checkstyle.dir}" includes="*.jar" />
+        </path>
+
+        <taskdef resource="checkstyletask.properties" classpathref="checkstyle.path" />
+
+        <checkstyle classpathref="checkstyle.path" config="${robin.dir}${file.separator}config${file.separator}checkstyle_config.xml">
+            <fileset dir="${src.dir}" includes="**/*.java" />
+            <fileset dir="${robin.src.dir}" includes="**/*.java" />
+            <formatter type="plain" />
+            <formatter type="xml" toFile="${log.dir}${file.separator}checkstyle${file.separator}checkstyle.xml" />
+        </checkstyle>
+    </target>
+
+    <target name="test" depends="buildRobin">
+        <path id="classpath.test">
+            <path refid="classpath.robin" />
+            <pathelement location="${robin.dir}${file.separator}tests" />
+        </path>
+        <javac srcdir="${robin.dir}${file.separator}tests" verbose="false" debug="true" includeantruntime="false" debuglevel="lines,vars,source" fork="false">
+            <classpath refid="classpath.test" />
+        </javac>
+        <junit>
+            <classpath refid="classpath.test" />
+            <formatter type="plain" usefile="false" />
+            <batchtest fork="false">
+                <fileset dir="${robin.dir}${file.separator}tests" includes="**/*.java" />
+            </batchtest>
+        </junit>
+    </target>
+
+</project>

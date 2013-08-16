@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+    <info organisation="com.robin" module="robotiumrc" />
+    <publications>
+        <artifact name="robotiumrc" type="jar" ext="jar" />
+    </publications>
+    <dependencies>
+        <dependency org="com.robin" name="safssockets" rev="latest.integration" changing="true" />
+        <dependency org="com.robin" name="safsautoandroid" rev="latest.integration" changing="true" />
+        <dependency org="com.jayway.android.robotium" name="robotium-solo" rev="4.2" transitive="false" />
+    </dependencies>
+</ivy-module>

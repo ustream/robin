@@ -1,0 +1,13 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="Android Smoke Tests" verbose="1" parallel="tests" thread-count="5" data-provider-thread-count="12">
+    <test name="Multiply Tests" parallel="methods" thread-count="12">
+        <groups>
+            <run>
+                <include name="SmokeTests" />
+            </run>
+        </groups>
+        <packages>
+            <package name="com.robin.tests" />
+        </packages>
+    </test>
+</suite>

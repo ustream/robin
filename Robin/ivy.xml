@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+    <info organisation="com.robin" module="robin" />
+    <publications>
+        <artifact name="robin" type="jar" ext="jar" />
+    </publications>
+    <dependencies>
+        <dependency org="com.robin" name="safssockets" rev="latest.integration" changing="true" />
+        <dependency org="com.robin" name="safsautoandroid" rev="latest.integration" changing="true" />
+        <dependency org="com.robin" name="robotiumrc" rev="latest.integration" changing="true" />
+        <dependency org="commons-lang" name="commons-lang" rev="2.3" />
+        <dependency org="commons-io" name="commons-io" rev="1.3.2" />
+        <dependency org="org.apache.commons" name="commons-exec" rev="1.1" />
+        <dependency org="com.google.android.tools" name="ddmlib" rev="r13" />
+        <dependency org="com.google.guava" name="guava" rev="r05" />
+        <dependency org="org.testng" name="testng" rev="6.8" />
+        <dependency org="com.sun.mail" name="mailapi" rev="1.4.4" />
+        <dependency org="com.sun.mail" name="imap" rev="1.4.4" />
+        <dependency org="com.robin" name="robinlib" rev="1.1" />
+        <dependency org="velocity" name="velocity-dep" rev="1.4" />
+        <dependency org="org.seleniumhq.selenium" name="selenium-support" rev="2.32.0"/>
+        <dependency org="org.uncommons" name="reportng" rev="1.1.2"/>
+    </dependencies>
+</ivy-module>

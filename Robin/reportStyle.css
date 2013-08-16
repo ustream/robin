@@ -1,0 +1,23 @@
+body                     {font-family: Lucida Sans Unicode, Lucida Grande, sans-serif; line-height: 1.8em; font-size: 62.5%; margin: 1em 1em;}
+
+.overviewTable           {width: 100%; margin-top: 1em; line-height: 1.7em; border-spacing: 0.1em;}
+
+.testOutput              {font-family: Lucida Console, Monaco, Courier New, monospace; color: #666666; display: inline; float: left;}
+.textoutput              {font-family: Lucida Console, Monaco, Courier New, monospace; color: #666666; display: inline;}
+
+.wait 		{color: rgb(70,150,35); display: inline;}
+.click 		{color: rgb(175,10,10); display: inline; }
+.type 		{color: rgb(175,110,10); display: inline;}
+.select 		{color: rgb(175,175,5); display: inline;}
+.check 		{color: rgb(120,130,70); display: inline;}
+.reading 	{color: rgb(20,160,170); display: inline;}
+.checking 	{color: rgb(20,165,20); display: inline;}
+.js_event 	{color: rgb(30,90,160); display: inline;}
+.flash      {color: rgb(255,20,147); display: inline;}
+.conf 		{color: rgb(50,50,50); display: inline;}
+.facebook   {color: rgb(59,89,152); display: inline;}
+.wait 		{font-size: 0.8em;}
+.value { font-weight: bold; display: inline;}
+.locator { font-style: italic; display: inline;text-decoration: underline;}
+.loc_name { font-weight: bold; font-style: italic; display: inline;text-decoration: underline;}
+.scroll		{color: rgb(4,4,180); display: inline;}
