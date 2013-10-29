@@ -114,3 +114,9 @@ One of the main features of this test framework is the possibility to run UI tes
 
 At the end of the test run all results are saved in the build folder of your project: reports, screenshots, used .apk files etc.
 HTML report: ...\build\reports\testNG\html\index.html, if test failed, the screenshot and log cat informations will be saved.
+
+#### Authors ####
+- Virag Horvath-Ori
+- Ferenc Lombai
+- Gyorgy Hrabovszki
+- Attila Janvari
